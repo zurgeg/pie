@@ -47,11 +47,11 @@ class Project:
         elif self._language == "c":
             self._compile_c() 
     def _compile_lua(self):
-        Popen(["pdc", "-k", "src", os.path.join("build", f"{self._name}.pdx")])
+        Popen(["pdc", "-k", "src", os.path.join("build", f"{self._name}.pdx")], env=os.environ)
     def _compile_c(self):
         with Chdir("build"):
-            Popen(["cmake", ".."])
-            Popen(["make"])
+            Popen(["cmake", ".."], env=os.environ)
+            Popen(["make"], env=os.environ)
     def save_project(self, file):
         # TODO: What else do we need to save?
         serialized = {
