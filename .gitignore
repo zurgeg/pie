@@ -2,3 +2,4 @@
 **/testproj
 **/*.egg-info
 **/dist
+**/build
