@@ -17,10 +17,10 @@ import click
 import os.path
 # hardcoded piecrusts
 try:
-    from . import notdate
+    from .notdate.play.playdate_pie import playdate as crust_playdate
 except ImportError:
     # we are in a developer env and not working as a package
-    import notdate.play.playdate_pie.playdate
+    from notdate.play.playdate_pie import playdate as crust_playdate
 
 @click.group()
 def cli():
@@ -42,14 +42,14 @@ def new(projectname, language, projectfile):
         exit(1)
     click.echo("Creating a project using the following options (hardcoded for playdate):")
     click.echo("Platform: notdate.play.playdate_pie.playdate (hardcoded)")
-    project = notdate.play.playdate_pie.playdate.Project(projectname, projectname, language=language)
+    project = crust_playdate.Project(projectname, projectname, language=language)
     project.copy_skeleton()
     project.save_project(projectfile)
 
 @playdate.command()
 @click.option("--projectfile", show_default=True, default="project.pdproject", help="Where the project metadata was stored")
 def compile(projectfile):
-    project = notdate.play.playdate_pie.playdate.Project.load_project(projectfile)
+    project = crust_playdate.Project.load_project(projectfile)
     click.echo("Attempting to compile project...")
     project.compile()
     click.echo("Done")
