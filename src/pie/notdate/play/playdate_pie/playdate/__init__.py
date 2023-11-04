@@ -47,7 +47,7 @@ class Project:
         elif self._language == "c":
             self._compile_c() 
     def _compile_lua(self):
-        Popen(["pdc", "-k", "src", os.path.join("build", f"{self._name}.pdx")], env=os.environ)
+        call(["pdc", "-k", "src", os.path.join("build", f"{self._name}.pdx")], env=os.environ)
     def _compile_c(self):
         with Chdir("build"):
             print("SDK at:", os.environ.get("PLAYDATE_SDK_PATH"))
