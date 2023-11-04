@@ -1,6 +1,6 @@
 from shutil import copytree
 import inspect, os
-from subprocess import Popen
+from subprocess import call
 from json import load, dump
 
 class Chdir:
@@ -50,8 +50,12 @@ class Project:
         Popen(["pdc", "-k", "src", os.path.join("build", f"{self._name}.pdx")], env=os.environ)
     def _compile_c(self):
         with Chdir("build"):
-            Popen(["cmake", ".."], env=os.environ)
-            Popen(["make"], env=os.environ)
+            print("SDK at:", os.environ.get("PLAYDATE_SDK_PATH"))
+            if call(["cmake", ".."], env=os.environ):
+                raise Exception("CMake failed!")
+            if call(["make"], env=os.environ):
+                raise Exception("Make failed!")
+            
     def save_project(self, file):
         # TODO: What else do we need to save?
         serialized = {
