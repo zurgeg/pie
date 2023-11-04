@@ -7,7 +7,7 @@ print("Found", find_namespace_packages(
 
 setup(
     name='pie',
-    version='0.1.0',
+    version='0.1.1',
     package_dir = {"": "src"},
     packages=find_namespace_packages(where='src'),
     include_package_data=True,
