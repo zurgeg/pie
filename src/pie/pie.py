@@ -16,8 +16,11 @@ If not, see <https://www.gnu.org/licenses/>.
 import click
 import os.path
 # hardcoded piecrusts
-import notdate.play.playdate_pie
-
+try:
+    from . import notdate
+except ImportError:
+    # we are in a developer env and not working as a package
+    import notdate.play.playdate_pie.playdate
 
 @click.group()
 def cli():
