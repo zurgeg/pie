@@ -4,4 +4,4 @@ submodules = next(_os.walk('src/pie/crusts'))[1]
 for submodule in submodules:
     if not submodule.startswith("_"):
         print("importing", submodule)
-        globals()[submodule] = _import_module("." + submodule, "pie.crusts")
+        globals()[submodule] = _import_module("." + submodule, __name__)
