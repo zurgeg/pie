@@ -9,6 +9,3 @@ So for Playdate, who's domain is at `play.date`, it's named like this:
 `date.play.playdate_pie`
 
 From there's one more submodule, which is the platform. i.e., `date.play.playdate_pie.playdate`. 
-
-#### Special Case
-In the case of Playdate, the crust is named `notdate.play.playdate_pie`, due to `date` being a Python builtin.
