@@ -15,44 +15,67 @@ If not, see <https://www.gnu.org/licenses/>.
 """ 
 import click
 import os.path
-# hardcoded piecrusts
+
+def get_contents(object_):
+    for object_name in dir(object_):
+        if not object_name.startswith("_"):
+            yield getattr(object_, object_name)
+    raise GeneratorExit
+
+crust_platforms = {}
+crust_langs = {}
 try:
-    from .crusts.notdate.play.playdate_pie import playdate as crust_playdate
+    from . import crusts
 except ImportError:
     # we are in a developer env and not working as a package
-    from crusts.notdate.play.playdate_pie import playdate as crust_playdate
+    import crusts
 
-@click.group()
-def cli():
-    pass
+click.echo("Loading crusts...")
 
-@cli.group()
-def playdate():
-    pass
+for tld in get_contents(crusts):
+    for domain in get_contents(tld):
+        for crust_module in get_contents(domain):
+            for platform in crust_module.PIE_PROVIDES:
+                crust_platforms[platform] = crust_module.PIE_PROVIDES[platform]
+                crust_langs[platform] = crust_module.PIE_LANGUAGES[platform]
+def create_group_for(platform):
+    crust_platform = crust_platforms[platform]
+    @click.group(name=platform)
+    def platform_group():
+        pass
 
-@playdate.command()
-@click.argument("projectname")
-@click.option("--language", show_default=True, default="lua", help="Which language to use")
-@click.option("--projectfile", show_default=True, default="project.pdproject", help="Where to store project metadata")
-def new(projectname, language, projectfile):
-    projectfile = os.path.join(projectname, projectfile)
-    if os.path.exists(projectfile):
-        click.echo(f"ERROR: There's already a project using the metadata file {projectfile}")
-        click.echo("Please use the --projectfile argument, or work with the existing project")
-        exit(1)
-    click.echo("Creating a project using the following options (hardcoded for playdate):")
-    click.echo("Platform: notdate.play.playdate_pie.playdate (hardcoded)")
-    project = crust_playdate.Project(projectname, projectname, language=language)
-    project.copy_skeleton()
-    project.save_project(projectfile)
+    @platform_group.command()
+    @click.argument("projectname")
+    @click.option("--language", show_default=True, default=crust_langs[platform], help="Which language to use")
+    @click.option("--projectfile", show_default=True, default=f"project.{crust_platform.PIE_PROJECT_DESCRIPTION}", help="Where to store project metadata")
+    def new(projectname, language, projectfile):
+        projectfile = os.path.join(projectname, projectfile)
+        if os.path.exists(projectfile):
+            click.echo(f"ERROR: There's already a project using the metadata file {projectfile}")
+            click.echo("Please use the --projectfile argument, or work with the existing project")
+            exit(1)
+        click.echo("Creating a project using the following options:")
+        click.echo("Platform: TODO")
+        project = crust_platform.Project(projectname, projectname, language=language)
+        project.copy_skeleton()
+        project.save_project(projectfile)
 
-@playdate.command()
-@click.option("--projectfile", show_default=True, default="project.pdproject", help="Where the project metadata was stored")
-def compile(projectfile):
-    project = crust_playdate.Project.load_project(projectfile)
-    click.echo("Attempting to compile project...")
-    project.compile()
-    click.echo("Done")
+    @platform_group.command()
+    @click.option("--projectfile", show_default=True, default="project.pdproject", help="Where the project metadata was stored")
+    def compile(projectfile):
+        project = crust_platform.load_project(projectfile)
+        click.echo("Attempting to compile project...")
+        project.compile()
+        click.echo("Done")
+    return platform_group   
+@click.command()
+@click.argument("platform")
+def cli(platform):
+    create_group_for(platform)
+
+
+
+
 
 
 if __name__ == '__main__':
