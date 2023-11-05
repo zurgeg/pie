@@ -17,10 +17,10 @@ import click
 import os.path
 # hardcoded piecrusts
 try:
-    from .notdate.play.playdate_pie import playdate as crust_playdate
+    from .crusts.notdate.play.playdate_pie import playdate as crust_playdate
 except ImportError:
     # we are in a developer env and not working as a package
-    from notdate.play.playdate_pie import playdate as crust_playdate
+    from crusts.notdate.play.playdate_pie import playdate as crust_playdate
 
 @click.group()
 def cli():
