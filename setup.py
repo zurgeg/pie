@@ -1,10 +1,5 @@
 from setuptools import setup, find_namespace_packages
 
-print("Found", find_namespace_packages(
-        where='src',
-        exclude=["*skeleton*"]
-    ))
-
 setup(
     name='pie',
     version='0.2.1',
