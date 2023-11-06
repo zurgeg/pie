@@ -9,6 +9,8 @@ try:
 except ImportError:
     main_file = None
 
+
+
 def caller_info(skip=1):
     """Get the name of a caller in the format module.class.method.
     Copied from: https://gist.github.com/techtonik/2151727
@@ -113,7 +115,7 @@ class Logger:
     def get_module_info(self):
         module_info = None
         if self.module_info == GET_MODULE_INFO_AUTOMATICALLY:
-            module_info = "".join(caller_info(skip=3)) # caller (module we want)
+            module_info = ".".join(caller_info(skip=3)) # caller (module we want)
             # of caller (logging function) of caller (caller_info)
             if module_info == "__main__":
                 module_info = os.path.basename(main_file)[:-3]
