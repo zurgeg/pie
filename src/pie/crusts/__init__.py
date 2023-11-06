@@ -5,3 +5,5 @@ submodules = next(_os.walk(_os.path.join(_os.path.dirname(_os.path.abspath(_insp
 for submodule in submodules:
     if not submodule.startswith("_"):
         globals()[submodule] = _import_module("." + submodule, __name__)
+del submodule
+del submodules

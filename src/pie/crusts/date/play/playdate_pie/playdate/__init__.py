@@ -3,6 +3,8 @@ import inspect, os
 from subprocess import call
 from json import load, dump
 
+PIE_PROJECT_EXTENSION = "pdproject"
+
 class Chdir:
     def __init__(self, directory):
         self._previous_dir = os.path.abspath(os.curdir)

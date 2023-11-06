@@ -2,6 +2,13 @@ from click import echo, style
 
 import inspect
 
+import os.path
+
+try:
+    from __main__ import __file__ as main_file
+except ImportError:
+    main_file = None
+
 def caller_info(skip=1):
     """Get the name of a caller in the format module.class.method.
     Copied from: https://gist.github.com/techtonik/2151727
@@ -28,8 +35,6 @@ def caller_info(skip=1):
     module_info = inspect.getmodule(parentframe)
     if module_info:
         mod = module_info.__name__.split('.')
-        package = mod[0]
-        module = mod[1]
 
     # class name.
     klass = None
@@ -48,7 +53,7 @@ def caller_info(skip=1):
     # See: https://docs.python.org/3/library/inspect.html#the-interpreter-stack
     del parentframe
 
-    return package, module, klass, caller, line
+    return mod
 
 STDOUT = None # Readability counts
 # I.e., Logger(log_file=None) might be confusing, 
@@ -90,7 +95,7 @@ class Logger:
         level=INFO,
         log_file=STDOUT,
         module_info=GET_MODULE_INFO_AUTOMATICALLY,
-        module_info_format=" {module_info} ",
+        module_info_format=" {module_info}: ",
         message_format="[{level}] {message}"
     ):
         self.debug_color = debug_color
@@ -98,6 +103,8 @@ class Logger:
         self.warning_color = warning_color
         self.error_color = error_color
         self.level = level
+        if type(self.level) == str:
+            self.level = str_to_level[self.level]
         self.log_file = log_file
         self.module_info = module_info
         self.module_info_format = module_info_format
@@ -106,8 +113,10 @@ class Logger:
     def get_module_info(self):
         module_info = None
         if self.module_info == GET_MODULE_INFO_AUTOMATICALLY:
-            module_info = caller_info(skip=3)[1] # caller (module we want)
+            module_info = "".join(caller_info(skip=3)) # caller (module we want)
             # of caller (logging function) of caller (caller_info)
+            if module_info == "__main__":
+                module_info = os.path.basename(main_file)[:-3]
         elif type(self.module_info) == str:
             module_info = self.module_info # module info was passed to us, nice!
         elif hasattr(self.module_info, __file__):
@@ -119,6 +128,10 @@ class Logger:
         return self.module_info_format.format(module_info=module_info)
     def exception(self, tb):
         raise NotImplementedError # how ironic...
+    def set_level(self, level):
+        self.level = level
+        if type(self.level) == str:
+            self.level = str_to_level[self.level]
     def log(self, message, level):
         error = False
         if level in level_to_str:
