@@ -24,6 +24,7 @@ def get_contents(object_):
 platforms = []
 crust_platforms = {}
 crust_langs = {}
+
 try:
     from . import crusts
     from . import clog
@@ -41,12 +42,12 @@ logger = clog.Logger(
 
 logger.log("Loading crusts...", INFO)
 for tld in get_contents(crusts):
-    logger.log(f"Loading tld {tld.__name__[7:]}", DEBUG)
+    logger.log(f"Loading tld {'.'.join(tld.__name__.split('.')[2:])}", DEBUG)
     for domain in get_contents(tld):
-        logger.log(f"Loading domain {domain.__name__[7:]}", DEBUG)
+        logger.log(f"Loading domain {'.'.join(domain.__name__.split('.')[2:])}", DEBUG)
         for crust_module in get_contents(domain):
             if type(crust_module) not in [str, list]:
-                logger.log(f"Loading module {crust_module.__name__[7:]}", INFO)
+                logger.log(f"Loading module {'.'.join(crust_module.__name__.split('.')[2:])}", INFO)
                 for platform in crust_module.PIE_PROVIDES:
                     crust_platforms[platform] = crust_module.PIE_PROVIDES[platform]
                     crust_langs[platform] = crust_module.PIE_LANGUAGES[platform]
