@@ -21,6 +21,7 @@ def get_contents(object_):
         if not object_name.startswith("_"):
             yield getattr(object_, object_name)
 
+platforms = []
 crust_platforms = {}
 crust_langs = {}
 try:
@@ -37,13 +38,24 @@ logger = clog.Logger(
     message_format="[{level}]{module_info}{message}",
 )
 
-@click.group()
-def lazy_group():
-    pass
+logger.log("Loading crusts...", INFO)
+for tld in get_contents(crusts):
+    logger.log(f"Loading tld {tld.__name__[7:]}", DEBUG)
+    for domain in get_contents(tld):
+        logger.log(f"Loading domain {domain.__name__[7:]}", DEBUG)
+        for crust_module in get_contents(domain):
+            if type(crust_module) not in [str, list]:
+                logger.log(f"Loading module {crust_module.__name__[7:]}", INFO)
+                for platform in crust_module.PIE_PROVIDES:
+                    crust_platforms[platform] = crust_module.PIE_PROVIDES[platform]
+                    crust_langs[platform] = crust_module.PIE_LANGUAGES[platform]
+                    platforms.append(platform)
+            else:
+                logger.log(f"Invalid module (type is wrong, {type(crust_module)} {crust_module}", WARNING)
 
 def create_group_for(platform):
     crust_platform = crust_platforms[platform]
-    @lazy_group.group(name=platform)
+    @click.group(name=platform)
     def platform_group():
         pass
 
@@ -70,34 +82,21 @@ def create_group_for(platform):
         click.echo("Attempting to compile project...")
         project.compile()
         click.echo("Done")
-    platform_group() 
-@click.command()
-@click.argument("platform")
+    return platform_group
+
+@click.group()
 @click.option('--log-level',
               type=click.Choice(["debug", "info", 
               "warning", "error"], case_sensitive=False),
               show_choices=True,
               default="info"
               )
-def cli(platform, log_level):
+def cli(log_level):
     logger.set_level(log_level)
-    logger.log("Loading crusts...", INFO)
-    for tld in get_contents(crusts):
-        logger.log(f"Loading tld {tld.__name__[7:]}", DEBUG)
-        for domain in get_contents(tld):
-            logger.log(f"Loading domain {domain.__name__[7:]}", DEBUG)
-            for crust_module in get_contents(domain):
-                if type(crust_module) not in [str, list]:
-                    logger.log(f"Loading module {crust_module.__name__[7:]}", INFO)
-                    for platform in crust_module.PIE_PROVIDES:
-                        crust_platforms[platform] = crust_module.PIE_PROVIDES[platform]
-                        crust_langs[platform] = crust_module.PIE_LANGUAGES[platform]
-                else:
-                    logger.log(f"Invalid module (type is wrong, {type(crust_module)} {crust_module}", WARNING)
-    create_group_for(platform)
-    
 
 
+for platform in platforms:
+    cli.add_command(create_group_for(platform))
 
 
 
