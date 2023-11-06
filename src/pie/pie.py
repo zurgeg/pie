@@ -36,6 +36,7 @@ except ImportError:
 
 logger = clog.Logger(
     message_format="[{level}]{module_info}{message}",
+    module_info="pie"
 )
 
 logger.log("Loading crusts...", INFO)
